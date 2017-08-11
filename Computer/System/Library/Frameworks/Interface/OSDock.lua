@@ -64,8 +64,8 @@
 	action = function(self, x, y)
 		for _,item in pairs(self.items) do
 			--check if the click overlaps an items
-			if OSServices.pointOverlapsRect({x = x, y = y}, item)  then
-				OSServices.hideAllMenus()
+			if OSEvents.pointOverlapsRect({x = x, y = y}, item)  then
+				OSInterfaceServices.hideAllMenus()
 				item:action()
 				OSUpdate()
 				return

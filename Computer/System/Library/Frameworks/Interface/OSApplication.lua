@@ -18,7 +18,7 @@
 		new.menus = _menus
 		new.crashed = _crashed
 		new.windows = _windows
-		new.id = OSServices.generateID()
+		new.id = OSInterfaceServices.generateID()
 		return new
 	end
 
@@ -39,17 +39,26 @@
 			self.environment.environment = self.environment
 
 			local crashed = false
+
+			--load app libs if exist
+			if OSFileSystem.exists(_path.."/Library") then
+				for _,fileName in pairs(OSFileSystem.list(_path.."/Library")) do
+					includeFile(_path.."/Library/"..fileName)
+				end
+			end
+
 			--initialise the application
 			local ok, err = os.run(self.environment, _path.."/"..name..".lua")
 			if not ok then --the application has an error in its code
-				if self.name then --application returned name
-					windows['error'] = OSErrorWindow:new("Application Error", {"Application did not start", "This can be a code error"}, "Proceed", function() windows['error'] = nil end, environment)
-				else
-					windows['error'] = OSErrorWindow:new("Application Error", {"Application did not start", "This can be a code error"}, "Proceed", function() windows['error'] = nil end, environment)
-				end	
+				windows['error'] = OSErrorWindow:new("Application Error", {"Application did not load", "This can be a code error"}, "Proceed", function() windows['error'] = nil end, environment)
 				crashed = true
 			else	
-				self.environment:init()	
+				local ok, err = pcall(self.environment.init)
+				if not ok then 
+					self.environment.windows = {}
+					self.environment.windows['error'] = OSErrorWindow:new("Application Error", {"Application did not init ", err}, "Proceed", function() windows['error'] = nil end, environment)
+					crashed = true
+				end
 			end
 			return OSApplication.new(self.environment.name, self.environment.mainMenu, self.environment.menus, self.environment.windows, crashed)
 		end

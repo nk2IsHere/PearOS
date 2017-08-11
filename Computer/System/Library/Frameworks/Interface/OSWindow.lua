@@ -124,17 +124,17 @@
 			else --main bar
 				self.dragX = x - 1
 
-				OSWindowDragTimer = os.startTimer(OSServices.dragTimeout)
+				OSWindowDragTimer = os.startTimer(OSEvents.dragTimeout)
 			end
 			elseif x == self.width and y == self.height - 1 then
-				OSWindowResizeTimer = os.startTimer(OSServices.dragTimeout)
+				OSWindowResizeTimer = os.startTimer(OSEvents.dragTimeout)
 			else -- it was in the window content
 				for _,entity in pairs(self.entities) do
 
 			--check if the click overlaps an entities
 
-				if OSServices.pointOverlapsRect({x = x, y = y}, entity)  then
-					if OSServices.clickEntity(entity, x, y) then
+				if OSEvents.pointOverlapsRect({x = x, y = y}, entity)  then
+					if OSEvents.clickEntity(entity, x, y) then
 						OSUpdate()
 						return
 					end
@@ -204,7 +204,7 @@
 		local w, h = OSServices.availableScreenSize()
 		new.x = math.ceil((w - _width) / 2)
 		new.y = math.ceil((h - _height) / 2) + 1
-		new.id = OSServices.generateID()
+		new.id = OSInterfaceServices.generateID()
 		new.environment = _environment
 		OSCurrentWindow = new
 		return new

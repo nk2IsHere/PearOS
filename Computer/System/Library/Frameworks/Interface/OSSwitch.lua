@@ -21,9 +21,9 @@
 	state = false
 	new = function(self, _x, _y, _title, _state, _valueChangedAction)
 		local new = {}    -- the new instance
-		setmetatable( new, {__index = OSSwitch} ) -- copy an instance of OSMenuItem
+		setmetatable( new, {__index = OSSwitch} ) -- copy an instance of itself
 
-		new.width = string.len(_title)+2
+		new.width = string.len(_title)+3
 		new.height = 1
 		new.x = _x
 		new.y = _y
@@ -38,7 +38,7 @@
 
 	action = function(self)
 		self.state = not self.state
-		self.valueChangedAction()
+		self.valueChangedAction(self.state)
 	end
 
 	Draw = function(self, darkMode)

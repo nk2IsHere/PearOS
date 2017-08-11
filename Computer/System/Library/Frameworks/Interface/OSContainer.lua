@@ -7,7 +7,7 @@
 
 	new = function(self, _x, _y, _width, _height, _entities)
 		local new = {}    -- the new instance
-		setmetatable( new, {__index = OSContainer} ) -- copy an instance of OSMenuItem
+		setmetatable( new, {__index = OSContainer} ) -- copy an instance of itself
 		new.width = _width
 		new.height = _height
 		new.x = _x

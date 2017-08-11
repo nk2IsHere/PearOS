@@ -7,8 +7,6 @@ sides = {
 "bottom"
 }
 
-
---lua is real shit
 function table.shallow_copy(t)
   local t2 = {}
   for k,v in pairs(t) do
@@ -188,8 +186,6 @@ redstonePulse("bottom",0.1)
 verbosePrint("To continue with system boot enter 'pear', you can also enter shell commands.")
 
 shell.run("System/PearOS.lua")
-init()
-
 if not verbose then
 	--Crash/Error Handling
 	local ok, err = pcall(init)
@@ -218,5 +214,6 @@ if not verbose then
 		end
 		
 	end
- 
+else
+	init()
 end

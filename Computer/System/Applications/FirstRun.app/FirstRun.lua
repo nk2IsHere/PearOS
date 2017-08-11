@@ -34,73 +34,14 @@
 				OSLabel:new(3,5 ,"This guide will help you get up and"),
 				OSLabel:new(3,6 ,"running as quick as possible."),
 				OSLabel:new(3,8 ,"To continue, click 'Next'"),
-				OSButton:new(39,15 ,"Next", function() self:changePage(2) end)
-			}
-		elseif page == 2 then			--new?
-			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(page - 1) end),
-				OSLabel:new(3,2 ,"Are you new?"),
-				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Have you used PearOS before?"),
-				OSLabel:new(3,7 ,"This will help us determine how to set up"),
-				OSLabel:new(3,8 ,"your computer and whether you need to be"),
-				OSLabel:new(3,9 ,"shown how to use it."),
-				OSButton:new(35,15 ,"Yes", function() firstTime = false self:changePage(3) end),
-				OSButton:new(41,15 ,"No", function() firstTime = true self:changePage(7) end)
-				
-			}
-		elseif page == 3 then  		-- ask restore settings from disk
-			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(page - 1) end),
-				OSLabel:new(3,2 ,"Restore previous settings?"),
-				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Do you want to restore your settings and"),
-				OSLabel:new(3,6 ,"applications  from a different computer?"),
-				OSLabel:new(3,8 ,"If the other computer is not in this world"),
-				OSLabel:new(3,9 ,"you can not restore files, click 'No'"),
-				OSButton:new(35,15 ,"Yes", function() self:changePage(4) end),
-				OSButton:new(41,15 ,"No", function() self:changePage(7) end)
-				
-			}
-		elseif page == 4 then  		--request disk for restore
-			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(page - 1) end),
-				OSLabel:new(3,2 ,"Insert the restore disk..."),
-				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Please insert the restore disk in a drive."),
-				OSLabel:new(3,7 ,"If you do not have disk click 'Help'"),
-				OSLabel:new(3,8 ,"However, it may be easier to start again."),
-				OSButton:new(39,15 ,"Help", function() self:changePage(5) end)
-				
-			}
-		elseif page == 5 then  		--restore help
-			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(page - 1) end),
-				OSLabel:new(3,2 ,"Restore Disk Help"),
-				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Please insert the restore disk in a drive."),
-				OSLabel:new(3,7 ,"If you do not have disk click 'Help'"),
-				OSLabel:new(3,8 ,"However, it may be easier to start again."),
-				OSButton:new(39,15 ,"Help", function() self:changePage(5) end)
-				
-			}
-			
-		elseif page == 6 then  		--restore copy
-			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(page - 1) end),
-				OSLabel:new(3,2 ,"Restoring..."),
-				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Copying your files, applications and"),
-				OSLabel:new(3,6 ,"settings to your new computer."),
-				OSLabel:new(3,8 ,"Do not remove the disk or drive.")
-				
+				OSButton:new(39,15 ,"Next", function() self:changePage(7) end)
 			}
 		elseif page == 7 then  		--clean setup start
 			nameTextBox = OSTextField:new(13,10,21,"")
 			nameTextBox.BackgroundColour = colours.lightGrey
 			
 			firstRunWindow.entities = {
-				OSButton:new(3,15 ,"Back", function() self:changePage(3) end),
+				OSButton:new(3,15 ,"Back", function() self:changePage(1) end),
 				OSLabel:new(3,2 ,"What's your name?"),
 				OSHSplitter:new(1, 3, 47, true),
 				OSLabel:new(3,5 ,"Click on the grey box and enter your name."),

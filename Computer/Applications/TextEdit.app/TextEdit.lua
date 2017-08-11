@@ -40,7 +40,7 @@
 			end
 		end
 		
-		local textView = OSTextView:new(2,1, 29, 14, text, function() 
+		local textView = OSBigTextField:new(1,1, 30, 14, text, function() 
 			
 		end)
 		
@@ -89,7 +89,7 @@
 	end
 	
 	windowDidResize = function(window, _width, _height)
-		window.textView.width = _width - 1
+		window.textView.width = _width 
 		window.textView.height = _height
 		window.textView:calculateWrapping()
 	end

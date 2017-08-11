@@ -1,20 +1,4 @@
 --OSServices--
-
-	updateFrequency = OSSettings['update_frequency']
-	dragTimeout = 1
-	commandTimeout = 1
-	shouldHideAllMenus = false
-	computerCraftMode = false
-	
-	rescheduleTimer = function()
-		OSUpdateTimer = os.startTimer(OSServices.updateFrequency) 
-	end
-	
-	resetSleepTimer = function()
-		if OSSettings['sleep_delay'] > 0 then
-			OSSleepTimer = os.startTimer(OSSettings['sleep_delay'])
-		end
-	end
 	
 	shutdown = function()
 		shell.run("System/Library/Computer/Shutdown")
@@ -80,50 +64,6 @@
 	round = function(num, idp)
 		local mult = 10^(idp or 0)
 		return math.floor(num * mult + 0.5) / mult
-	end
-	
-	lastID = 0	--the last used id number, this is used in generateID
-	generateID = function()
-		OSServices.lastID = OSServices.lastID + 1
-		return OSServices.lastID
-	end
-
-	clickEntity = function(entity, x, y)
-		--make sure the entity has an action
-		if entity.action then
-			--if the entity doen't have the 'enabled' key or enabled is true
-			if entity.enabled == nil or entity.enabled then
-				local entityRelativeX = x - entity.x
-				local entityRelativeY = y - entity.y
-				entity:action(entityRelativeX, entityRelativeY)
-				entity.isSelected = true
-				return true --prevent any other clicks from being registered in the same place
-			end
-		end
-		return false
-	end
-	
-	hideAllMenus = function ()
-		for i = 1, #OSInterfaceEntities.list do	 					-- first delete all the list items
-			if OSInterfaceEntities.list[i].objtype == "OSMenuItem" then
-				OSInterfaceEntities.list[i]=nil
-			end
-		end
-		OSServices.compactArray(OSInterfaceEntities.list)
-
-		for i = 1, #OSInterfaceEntities.list do	 --then set all menus to hidden     removed -->(the menu that just had it's items removed set to hidden)
-			if OSInterfaceEntities.list[i].objtype == "OSMenu" then
-				OSInterfaceEntities.list[i].isHidden = true
-				OSInterfaceEntities.list[i].isFirstDraw = true
-			end
-		end
-	end
-	
-	pointOverlapsRect = function (point, rect)
-		if not((rect.width == nil) and (rect.height == nil)) then 
- 			return point.x >= rect.x and point.x <=rect.x + rect.width - 1 and point.y >= rect.y and point.y <=rect.y + rect.height - 1
- 		end
- 		return false
 	end
 
 	split = function(str, sep)

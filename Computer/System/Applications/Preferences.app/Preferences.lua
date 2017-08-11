@@ -21,7 +21,6 @@
 		local settingsListView = OSListView:new(1, 2, 17, 14, {
 			OSListItem:new("General", function()switchCategory('General')end),
 			OSListItem:new("Appearance", function()switchCategory('Appearance')end),
-			OSListItem:new("File Extentions", function()switchCategory('File Extentions')end),
 			OSListItem:new("Dock Items", function()switchCategory('Dock Items')end),
 		})
 				
@@ -193,11 +192,45 @@
 				dontBootPearOSCheckBox,
 				none
 			}
-		elseif category == 'File Extentions' then
-		else 
-			settingsContainer.entities = {
-				OSLabel:new(3, 4, "This Will Be Added Soon"),
-			}
+		elseif category == 'Dock Items' then
+			settingsContainer.entities = {}
+			local startY = 1
+			local applicationsPath = "Applications/"
+
+			local settings = OSTableIO.load("Home/Settings.cfg")
+			for _,v in pairs(OSFileSystem.list("Applications")) do
+				if OSFileSystem.hasExtention(v) then
+					local switch = OSSwitch:new(2, startY, v, findInTable(settings.dock_items, v), function()
+						if findInTable(settings.dock_items, v) then
+							OSServices.removeTableItem(settings.dock_items, v)
+							OSDock:remove(findDockItem(applicationsPath..v))
+						else
+							table.insert(settings.dock_items, v)
+							OSDock:add(OSDockItem:new(applicationsPath..v))
+						end
+						OSTableIO.save(settings,"Home/Settings.cfg")
+					end)
+
+					table.insert(settingsContainer.entities, switch)
+					startY = startY + 2
+				end
+			end
+		else error('impossible category')	
+		end
+	end
+
+	findInTable = function (_table, _value)
+		for k,v in pairs(_table) do
+			if v == _value then return true end
+		end
+		return false
+	end
+
+	findDockItem = function(_path)
+		for _,item in pairs(OSDock.items) do
+			for _,v in pairs(item) do
+				if v == _path then return item end
+			end
 		end
 	end
 

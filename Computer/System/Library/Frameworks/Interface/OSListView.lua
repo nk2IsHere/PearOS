@@ -30,6 +30,8 @@
 
 	Draw = function(self, darkMode)
 
+		self.maxScrollY = self.height - #self.items
+		
 		for i = 1, #self.items do
 			local listItem = self.items[i]
 			listItem.x = self.x

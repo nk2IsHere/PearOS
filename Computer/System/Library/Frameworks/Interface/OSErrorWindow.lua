@@ -44,7 +44,7 @@
 		local w, h = OSServices.availableScreenSize()
 		new.x = getCenter(w, new.width)
 		new.y = getCenter(h, new.height) + 1
-		new.id = OSServices.generateID()
+		new.id = OSInterfaceServices.generateID()
 		new.environment = _environment
 		OSCurrentWindow = new
 

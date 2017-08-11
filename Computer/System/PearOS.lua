@@ -3,7 +3,7 @@
 PearOS by Oliver 'oeed' Cooper.
 PearOS is released under Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0) License
 
-Basically, that is not mine fully. But I'm trying to make it rly usable //nk2
+Basically, oeed, thank you for creating this. Now I'm trying to make it better. and darker. //nk2
 ]]--
 
 --Slightly Modified os.loadAPI--
@@ -22,19 +22,11 @@ StringSplit = function(inputstr, sep)
         return t
 end
 
-CopyTable = function(t)
-	local u = { __index = _G }
-	for k, v in pairs(t) do
-		u[k] = v
-	end
-	return setmetatable(u, getmetatable(t))
-end
-
 function includeFile(_sPath)
 	local sName = fs.getName( _sPath )
 
 	if string.match(sName, ".lua") then
-		sName = StringSplit(sName, ".")[1]
+		sName = string.gsub(sName, ".lua", "")
 	end
 
 	if tAPIsLoading[sName] == true then
@@ -112,6 +104,7 @@ OSSettings = {
 	user_name = "",
 	update_frequency = 1,
 	extension_associations = {},
+	dock_items = {},
 	sleep_delay = 0
 }	
 
@@ -137,6 +130,9 @@ OSSaveSettings = function()
 end
 
 OSLog = function(message)
+	
+	--message = tostring(message)
+
 	local file = fs.open("log", "a")
 	file.write(message.."\n")
     file.close()
@@ -146,238 +142,14 @@ OSLog = function(message)
 end
 
 OSUpdate = function()
-	if OSServices.shouldHideAllMenus then
-		OSServices.hideAllMenus()
-		OSServices.shouldHideAllMenus = false
+	if OSInterfaceServices.shouldHideAllMenus then
+		OSInterfaceServices.hideAllMenus()
+		OSInterfaceServices.shouldHideAllMenus = false
 	end
 	--
 	--sleep(0.1)
 	OSDrawing.Draw()
-	OSUpdateTimer = os.startTimer(OSServices.updateFrequency) 
-end
-
-function OSHandleClick (x, y)
-	OSSelectedEntity = nil
-	for _,entity in pairs(OSInterfaceEntities.list) do
-	
-		--check if the click overlaps an entities
-		if OSServices.pointOverlapsRect({x = x, y = y}, entity)  then
-			if OSServices.clickEntity(entity, x, y) then
-				OSSelectedEntity = entity
-				return
-			end
-		end
-	end
-
-			--check windows
-			--first click on the current window
-	for _,key in ipairs(OSInterfaceApplications.order) do
-		local application = OSInterfaceApplications.list[key]
-		for _,window in pairs(application.windows) do
-
-			--check if the click overlaps an entities
-			if window.isMinimised then
-				break
-			end
-
-			if OSServices.pointOverlapsRect({x = x, y = y}, window)   then
-				local relativeX = x - window.x + 1
-				local relativeY = y - window.y
-				OSCurrentWindow = window
-				OSInterfaceApplications.switchTo(application)
-				window:action(relativeX, relativeY)
-				return
-			end
-		end
-	end
-	OSServices.hideAllMenus()
-end
-
-function OSHandleCharacter (char) 
-	if OSSelectedEntity then
-	OSSelectedEntity:insertCharacter(char)
-	end
-end
-
-function OSHandleKeystroke (keystroke) 
-	local name = keys.getName(keystroke)
-	if name == "left" then
-		if OSSelectedEntity then
-		OSSelectedEntity:moveCursor(-1)
-		end
-	elseif name == "right" then
-		if OSSelectedEntity then
-		OSSelectedEntity:moveCursor(1)
-		end
-	elseif name == "backspace" then
-		if OSSelectedEntity then
-		OSSelectedEntity:removeCharacter (-1)
-		end
-	elseif name == "delete" then
-		if OSSelectedEntity then
-		OSSelectedEntity:removeCharacter (0)
-		end
-	elseif name == "enter" then
-		if OSSelectedEntity then
-			OSSelectedEntity:submit()
-		end
-	elseif keystroke == 219 or keystroke == 220 or name == "leftCtrl" or name == "rightCtrl" then
-		OSCommandKeyTimer = os.startTimer(OSServices.commandTimeout) 
-	elseif not name == nil then
-		if #name == 1 then -- a character
-			if OSCommandKeyTimer then
-			--if the user pressed the command key (presumably its still down)
-			OSHandleKeyCommand(name:upper())
-			end
-		end
-	else
-	--		print(name)
-	end
-end
-
-function OSHandleKeyCommand (key)
-	local application = OSInterfaceApplications.current() --the current application
-	if key == "R" and false then --this is disabled, enable it if you wish
-		os.reboot()
-	else
-		if OSKeyboardShortcuts.list[key] then
-			local action = OSKeyboardShortcuts.list[key]
-			action()
-		end
-	end
-	OSUpdate()
-end
-
-function OSHandleScroll (x, y, direction)
-	--only windows are checked, only windows should have a scrolling view
-	for _,application in pairs(OSInterfaceApplications.list) do
-		for _,window in pairs(application.windows) do
-			--check if the click overlaps an entities
-			if OSServices.pointOverlapsRect({x = x, y = y}, window)   then
-
-				--give the window focus
-				OSCurrentWindow = window
-				--get the click position relative to the window
-				local relativeX = x - window.x + 1
-				local relativeY = y - window.y
-
-				--if the y of the click was 0 (the window frame) do special actions
-				if relativeY == 0 then
-
-					if relativeX == 1 then --close button
-					window:close()
-					return
-					elseif relativeX == 2 and window.canMinimise then --minimise button
-
-					elseif relativeX == 3 and window.canMaximise then --maximise button
-
-					else --main bar
-					window.dragX = relativeX  + 1
-					OSWindowDragTimer = os.startTimer(OSServices.dragTimeout)
-					end
-				else -- it was in the window content
-					for _,entity in pairs(window.entities) do
-
-						--check if the click overlaps an entities
-						if entity.canScroll == true and OSServices.pointOverlapsRect({x = relativeX - 1, y = relativeY - 1}, entity)  then
-
-							local newScroll = entity.scrollY - direction
-							if newScroll >= entity.maxScrollY and newScroll <= 0  then
-								entity.scrollY = newScroll
-								OSUpdate()
-							end
-
-						end
-					end
-				end
-
-			end
-		end
-	end
-end
-
-function OSHandleDrag (x,y)
-	--check the window should be draged
-	if OSWindowDragTimer and not OSFirstRunMode then
-		OSCurrentWindow.x = x - OSCurrentWindow.dragX
-		if y == 1 then
-			y = 2
-		end
-		OSCurrentWindow.y = y  
-		--update the time out
-		OSWindowDragTimer = os.startTimer(OSServices.dragTimeout)
-		--redraw the screen
-		OSUpdate()
-	elseif OSWindowResizeTimer then
-		--resize the window
-		OSCurrentWindow:resize(x - OSCurrentWindow.x + 1, y - OSCurrentWindow.y + 1)
-		--update the time out
-		OSWindowResizeTimer = os.startTimer(OSServices.dragTimeout)
-	end
-	if OSSelectedEntity then
-		if OSServices.pointOverlapsRect({x = x, y = y}, OSSelectedEntity)  then
-			local endPos = x + (y * OSSelectedEntity.width)
-			OSSelectedEntity.Selection[2] = endPos
-		end
-	end
-end
-
-function EventHandler ()
-	OSUpdateTimer = os.startTimer(OSServices.updateFrequency)
-	OSServices.resetSleepTimer()
-	while true do
-		local event, arg, x, y = os.pullEventRaw()
-
-		if event == "timer" then
-		if arg == OSUpdateTimer then
-
-			if not OSServices.computerCraftMode then
-				OSUpdate()
-				if clock then
-					clock:Draw()
-				end
-			end
-			--[[
-			It would be very easy to turn off constant refreshing. It would work, a few problems with the button selection colour prevent me from doing so.
-			To switch, comment out OSUpdate
-			]]
-			OSUpdateTimer = os.startTimer(OSServices.updateFrequency)
-			elseif arg == OSWindowDragTimer then
-			OSWindowDragTimer = nil
-			elseif arg == OSCommandKeyTimer then
-			OSCommandKeyTimer = nil
-			elseif arg == OSWindowResizeTimer then
-			OSWindowResizeTimer = nil
-			elseif arg == OSSleepTimer then
-			--OSServices.sleep()
-		end
-		elseif event == "char" then
-			OSServices.resetSleepTimer()
-			OSHandleCharacter(arg)
-		elseif event == "key" then
-			OSServices.resetSleepTimer()
-			OSHandleKeystroke(arg)
-		elseif event == "mouse_click"  then
-			OSServices.resetSleepTimer()
-			if arg == 1 then --left click
-				OSHandleClick(x, y)
-			else --right click
-			--os.reboot()
-			end
-		elseif event == "monitor_touch" then
-			OSServices.resetSleepTimer()
-			OSHandleClick(x, y)
-		elseif event == "mouse_drag" then
-			OSServices.resetSleepTimer()
-			OSHandleDrag(x, y)
-		elseif event == "mouse_scroll" then
-			OSServices.resetSleepTimer()
-			OSHandleScroll(x, y, arg)
-		else
-		--	  			print(event)
-		--	  			print(arg)
-		end
-	end
+	OSUpdateTimer = os.startTimer(OSEvents.updateFrequency) 
 end
 
 function initMenuBar()
@@ -410,10 +182,8 @@ function initDock()
 	local dockItems = {}
 	table.insert(dockItems, OSDockItem:new("System/Applications/Finder.app"))
 	local applicationsPath = "Applications/"
-	for _,name in ipairs(OSFileSystem.list(applicationsPath)) do
-		if OSFileSystem.extension(name) == "app" then
-			table.insert(dockItems, OSDockItem:new(applicationsPath..name))
-		end
+	for _,name in ipairs(OSSettings['dock_items']) do
+		table.insert(dockItems, OSDockItem:new(applicationsPath..name))
 	end
 	dock = OSDock:new(dockItems)
 	OSInterfaceEntities.add(dock)
@@ -439,20 +209,6 @@ function init()
 		include("System/Library/Frameworks")
 		OSExtensionAssociations.list = OSSettings['extension_associations']
 
-		--Verbose wait
-		wait = OSSettings['boot_arg'] == 47
-		while wait do
-			term.write(shell.dir().."/# ")
-			local command = io.read()
-			if command == "pear" then
-				print("Starting PearOS...")
-				wait = false
-			else
-				result = shell.run(command)
-			end
-
-		end
-
 		initMenuBar()
 		initDock()
 		startFinder()
@@ -462,7 +218,7 @@ function init()
 	end
 
 	OSUpdate()
-	EventHandler()
+	OSEvents.EventHandler()
 end
 
 function firstRun()

@@ -47,8 +47,8 @@
 
 		if #self.text < self.width - 1 then
 			self.Offset = 0
-		--the text box text is shorter that the maximum
-		OSDrawing.DrawCharacters(self.x + 1, self.y, self.text, textColour, backgroundColour)
+			--the text box text is shorter that the maximum
+			OSDrawing.DrawCharacters(self.x + 1, self.y, self.text, textColour, backgroundColour)
 		else
 			self.Offset = #self.text - self.width + 2
 			if self.CursorPosition <= self.Offset then
@@ -94,7 +94,6 @@
 		end
 		self.CursorPosition = c
 		self.Blink = true
-		OSUpdate()
 	end
 
 	action = function(self, x, y)

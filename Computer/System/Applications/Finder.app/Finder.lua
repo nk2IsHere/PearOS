@@ -5,26 +5,18 @@
 	version = "0.1"
 	showHidden = false
 	id = 0
-	author = "oeed; nk2"
+	author = "nk2"
 	
 	init = function()
 		local filemenuItems = {
-    			OSMenuItem:new("New Finder Window", function() 
+    			OSMenuItem:new("New Window", function() 
     			newFinderWindow(OSFileSystem.HomePath) end,"N"),
-    			OSMenuItem:new("Open", nil, "O")
+    			OSMenuItem:new("Open", nil, "O"),
+    			OSMenuItem:new("Go to Home", nil, "H")
 	    	}
-		local filemenu = OSMenu:new(1, 1, "File", filemenuItems)
-    	
-    		local editmenuItems = {
-    			OSMenuItem:new("Copy", nil, "C")
-	    	}
-		local editmenu = OSMenu:new(1, 1, "Edit", editmenuItems)
-    	
-    		menus = {filemenu, editmenu}
-	end
-	
-	about = function()
-		windows['about'] = OSAboutWindow:new(name, version, author, path, environment)
+        menus = {
+        	OSMenu:new(1, 1, "File", filemenuItems)
+        }
 	end
 	
 	newFinderWindow = function(path)
@@ -41,6 +33,7 @@
 			OSListItem:new(" ".. string.sub(OSFileSystem.getName(OSFileSystem.HomePath),1, 12), function() handleItem(OSFileSystem.HomePath, finderWindow) end),
 			OSListItem:new(" Documents", function() handleItem(OSFileSystem.HomePath.."Documents/", finderWindow) end),
 		})
+
 		local splitter = OSVSplitter:new(16, 3, height-2)
 		
 		local toolbar 
@@ -48,26 +41,28 @@
 			else toolbar = OSBox:new(1,1, width, 2, colours.black) end
 
 
-		local backButton = OSButton:new(3,1, "<", function() goBack(finderWindow) end)
+		
 		local buttonsSplitter = OSVSplitter:new(6, 1, 1)
 		buttonsSplitter.BackgroundColourDark = colours.black
 		
-		local forwardButton = OSButton:new(7,1, ">", nil)
+		local backButton = OSButton:new(3,1, "<", function() goBack(finderWindow) end)
 		backButton.BackgroundColour = colours.white
 		backButton.DisabledTextColour = colours.lightGrey
 		backButton.DisabledBackgroundColour = colours.white
 		
+		local forwardButton = OSButton:new(7,1, ">", nil)
 		forwardButton.BackgroundColour = colours.white
 		forwardButton.DisabledTextColour = colours.lightGrey
 		forwardButton.DisabledBackgroundColour = colours.white
 
 		local pathbar = OSTextField:new(11,1,31, path, function() openDirectory( finderWindow.pathbar.text, finderWindow) end)
+		
 		local pathGo = OSButton:new(43,1, "Go", function() pathbar:submit() end)
 		pathGo.BackgroundColour = colours.white
 		pathGo.DisabledTextColour = colours.lightGrey
 		pathGo.DisabledBackgroundColour = colours.white
 
-		
+		--TODO
 		filesList = OSListView:new(17, 4, 32, 11, {})
 		
 		
@@ -121,12 +116,6 @@
 	end
 	
 	openDirectory = function(path, window, addToHistory, update)
-		--[[if addToHistory == nil then
-			addToHistory = true
-		end]]--
-		if update == nil then
-			update = true
-		end
 		addToHistory = addToHistory or true
 		if OSFileSystem.exists(path) then
 			window.title = OSFileSystem.getName(path)
@@ -134,19 +123,15 @@
 				--add the old path to history
 				table.insert(window.backHistory, window.pathbar.text)
 			end
+
 			updateHistoryButtons(window)
 			window.pathbar.text = path
-			
-			
-			
+		
 			window.fileList.items = {}
 			for _,file in  pairs(OSFileSystem.list(path)) do
 				--check if the file has a full stop in front (hide it if showhidden is false)
-				if string.sub(file,1,1) == "." then
-				else
-					table.insert(window.fileList.items, 
-						OSListItem:new(file, function() handleItem(path..file, window) end)
-					)
+				if not (string.sub(file,1,1) == ".") then
+					table.insert(window.fileList.items, OSListItem:new(file, function() handleItem(path..file, window) end))
 				end
 			end
 			

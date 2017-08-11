@@ -1,8 +1,0 @@
-Browsing Finder Crash: PearOS.lua:1782:vm error:(Java out of bounds exception)
-TextEdit wrapping now doesn't cut off during a word (thanks Kingdaro!)
-TextEdit crashing
-Resizing TextEdit doesn't work
-
-Arrow key (vertical) missing from TextEdit
-Scrolling missing from TextEdit
-Selection is incorrect in TextEdit due to text wrapping

@@ -19,31 +19,36 @@
 	rosetta = function()
 		local appList = {}
 		local path = "Applications/ComputerCraft/"
-
-		for _,v in pairs(fs.list(path)) do
-			table.insert(appList, OSListItem:new(v, function ()renderApp(path, v)end))
-		end
-
 		local appListView = OSListView:new(1, 2, 17, 14, appList)
+		update(path, appListView)
 		windows['rosetta'] = OSWindow:new(name, {
 			appListView
 		}, 17,14, environment)
-		windows['rosetta'].minHeight = 3 + #appList
+		windows['rosetta'].minHeight = 4
 		windows['rosetta'].minWidth = 9 + #name
 	end
 
 	renderApp = function(path, name)
 		shell.resolve(path..name.."/")
 		shell.setDir(path..name.."/")
-		OSServices.computerCraftMode = true
+		OSEvents.computerCraftMode = true
 		local ok, err = os.run(environment, path..name.."/"..name)
-		OSServices.computerCraftMode = false
-		if not ok then 
+		OSEvents.computerCraftMode = false
+		if not (err == nil) then 
 			windows['error'] = OSErrorWindow:new("Application Error", {"Application did not start", "This can be a code error"}, "Proceed", function() windows['error'] = nil end, environment)
 		end
-		
-		--crash os on crash
-		OSLog(err)
+	end
+
+	update = function(path, list)
+		local appList = {}
+		for _,v in pairs(OSFileSystem.list(path)) do
+			table.insert(appList, OSListItem:new(v, function ()
+				renderApp(path, v)
+				update(path, list)
+			end))
+		end
+
+		list.items = appList
 	end
 
 	function windowDidClose(self)
@@ -55,7 +60,7 @@
 			return
 		end
 
-		window.entities[1].width = _width -1
-		window.entities[1].height = _height -1
+		window.entities[1].width = _width 
+		window.entities[1].height = _height -2
 	end
 		

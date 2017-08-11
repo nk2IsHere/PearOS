@@ -33,15 +33,6 @@
 		--draw the desktop
 		desktop:Draw(darkMode)
 
-		--draw all windows
-
-		--TODO: figure out how to correctly order the windows
-		--[[
-		for _,application in pairs(OSInterfaceApplications.list) do
-		OSDrawing.MainLoop.DrawApplicationWindows(application)
-		end
-		]]--
-
 		local currentApplication = OSInterfaceApplications.current()
 		for _,key in ipairs(OSInterfaceApplications.order) do
 			local application = OSInterfaceApplications.list[key]
@@ -51,16 +42,12 @@
 			end
 		end
 
-		-- draw the current application
 		OSDrawing.DrawApplicationWindows(currentApplication)
-
-		--draw other entities
-
 		OSDrawing.releaseOffset() --just incase there is an offset (which shouldn't be there!!)
 
 		for _,entity in ipairs(OSInterfaceEntities.list) do
 			OSDrawing.DrawEntity(entity)
-			if OSServices.shouldBreakDrawLoop then
+			if OSEvents.shouldBreakDrawLoop then
 				break
 			end
 		end

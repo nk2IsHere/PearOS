@@ -15,7 +15,7 @@
 	list = function(path) --list, but filter out hidden items
 		local t = {}
 		for _,v in ipairs(fs.list(path)) do
-			if not OSFileSystem.isHidden(path..v) then
+			if not (OSFileSystem.isHidden(path..v) or v == '.DS_Store') then
 				table.insert(t, v)
 			end
 		end

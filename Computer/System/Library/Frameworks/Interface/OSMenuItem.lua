@@ -60,7 +60,7 @@
 			end
 			--hide all menus
 			self.isSelected = false
-			OSServices.shouldHideAllMenus = true
+			OSInterfaceServices.shouldHideAllMenus = true
 		end
 
 		OSDrawing.DrawBlankArea(self.x, self.y, self.width, self.height, bgColour)

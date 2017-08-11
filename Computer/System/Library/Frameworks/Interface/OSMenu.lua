@@ -40,7 +40,7 @@
 		end
 		self.hasShortcut = hasShortcut
 		--assign a unique id to each item
-		new.id = OSServices.generateID()--math.random()
+		new.id = OSInterfaceServices.generateID()--math.random()
 		return new
 	end
 
@@ -51,7 +51,7 @@
 			menu:hideItems(menu)
 		else
 			--the menu is closed, hide other menus and enrole this for display
-			OSServices.hideAllMenus()
+			OSInterfaceServices.hideAllMenus()
 			menu.isHidden = not menu.isHidden
 		end
 		OSUpdate()

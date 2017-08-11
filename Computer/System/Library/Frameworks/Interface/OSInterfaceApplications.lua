@@ -92,9 +92,7 @@
 				if application.title == "Finder" then
 					--give a special  menu for finder
 					appMenuItems = {
-						OSMenuItem:new("About "..application.title, function () application.environment.about(application) end),
-						OSMenuSplitter:new(),
-						OSMenuItem:new("Close Window", function () OSCurrentWindow:close() end, "W")
+						OSMenuItem:new("Close Window", function () if not (OSCurrentWindow == nil) then OSCurrentWindow:close() end end, "W")
 					}
 				end
 			elseif getTableLength(application.mainMenu) == getTableLength(appMenuItems) then

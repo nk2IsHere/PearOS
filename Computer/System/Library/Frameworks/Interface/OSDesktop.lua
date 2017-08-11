@@ -21,5 +21,5 @@
 	end
 
 	action = function()
-		OSServices.hideAllMenus()
+		OSInterfaceServices.hideAllMenus()
 	end
