@@ -42,12 +42,12 @@
 		return fs.getSize(path)
 	end
 		
-	copy = function(path)
-		return fs.copy(path)
+	copy = function(from, to)
+		return fs.copy(from, to)
 	end
 		
-	move = function(path)
-		return fs.move(path)
+	move = function(from, to)
+		return fs.move(from, to)
 	end
 		
 	delete = function(path)

@@ -19,6 +19,7 @@
 		new.icon = paintutils.loadImage(_path.."/icon")
 		new.path = _path
 		new.applicationName = OSFileSystem.shortName(_path)
+		new.application = OSApplication:load(_path)
 		return new
 	end
 
@@ -27,6 +28,9 @@
 		setmetatable( new, {__index = OSDockItem} ) -- copy an instance of OSMenuItem
 		new.icon = paintutils.loadImage("System/Library/Interface/minimise")
 		new.action = function()
+			_window:restore()
+		end
+		new.context = function()
 			_window:restore()
 		end
 		return new
@@ -42,6 +46,14 @@
 	end
 
 	action = function(self)
-		local application = OSApplication:load(self.path)
-		OSApplication.run(application)
+		OSApplication.run(self.application)
+	end
+
+	context = function(self, x, y)
+		OSInterfaceEntities.add(OSContextMenu:new(self.x+x, 14, "", {
+			OSMenuItem:new("Open app", function() OSApplication.run(self.application) end, nil),
+			OSMenuItem:new("Close app", function() 
+				OSApplication.quit(self.application)
+			end, nil)
+		}))
 	end

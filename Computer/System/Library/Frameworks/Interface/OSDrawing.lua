@@ -1,12 +1,19 @@
 --OSDrawing--
 
 	local _w, _h = term.getSize()
-	darkMode = OSSettings["dark_mode"]
+	darkMode = false--OSSettings["dark_mode"]
 	
 	Screen = {
 		Width = _w,
 		Height = _h
 	}
+
+	SetMode = function(mode)
+		darkMode = mode
+	end
+	GetMode = function()
+		return darkMode
+	end
 
 	DrawEntity = function(entity)
 		entity:Draw(darkMode)
@@ -51,13 +58,14 @@
 				break
 			end
 		end
+
 		OSDrawing.releaseOffset() --just incase there is an offset (which shouldn't be there!!)
 		OSDrawing.DrawBuffer()
 	end
 
 	Offset = {
-	x = 0,
-	y = 0
+		x = 0,
+		y = 0
 	}
 
 	addOffset = function (_x, _y)

@@ -40,13 +40,11 @@
 			end
 		end
 		
-		local textView = OSBigTextField:new(1,1, 30, 14, text, function() 
-			
-		end)
+		local textView = OSBigTextField:new(1,1, 28, 12, text)
 		
 		window = OSWindow:new(name, {
 			textView
-		}, 30, 14, environment)
+		}, 28, 12, environment)
 		
 		id = id + 1
 		window.textView = textView

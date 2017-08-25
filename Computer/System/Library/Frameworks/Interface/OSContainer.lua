@@ -23,14 +23,14 @@
 		end
 	end
 
-	action = function(self, x, y)
+	action = function(self, x, y, arg)
 		x = x + 1
 		y = y + 1
-
+		
 		for _,entity in pairs(self.entities) do
 			--check if the click overlaps an entities
 			if OSServices.pointOverlapsRect({x = x, y = y}, entity)  then
-				OSServices.clickEntity(entity, x, y)
+				OSServices.clickEntity(entity, x, y, arg)
 			end
 		end
 	end

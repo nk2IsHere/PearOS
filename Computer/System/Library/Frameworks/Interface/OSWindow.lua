@@ -111,7 +111,7 @@
 		OSUpdate()
 	end
 
-	action = function(self, x, y)
+	action = function(self, x, y, arg)
 		--if the y of the click was 0 (the window frame) do special actions
 		if y == 0 then
 			if x == 1 then --close button
@@ -130,11 +130,8 @@
 				OSWindowResizeTimer = os.startTimer(OSEvents.dragTimeout)
 			else -- it was in the window content
 				for _,entity in pairs(self.entities) do
-
-			--check if the click overlaps an entities
-
-				if OSEvents.pointOverlapsRect({x = x, y = y}, entity)  then
-					if OSEvents.clickEntity(entity, x, y) then
+				if OSEvents.pointOverlapsRect({x = x, y = y}, entity)  then 
+					if OSEvents.clickEntity(entity, x, y, arg) then
 						OSUpdate()
 						return
 					end
@@ -163,9 +160,9 @@
 			OSDrawing.DrawBlankArea(1, 0, self.width, 1, frameColour)
 
 			--draw the title bar buttons
-			if self.canClose then OSDrawing.DrawCharacters(1, 0, "x", OSWindow.ButtonTextColour, OSWindow.CloseColour) end
-			if self.canMinimise then OSDrawing.DrawCharacters(2, 0, "-", OSWindow.ButtonTextColour, OSWindow.MinimiseColour) end
-			if self.canMaximise then OSDrawing.DrawCharacters(3, 0, "+", OSWindow.ButtonTextColour, OSWindow.MaximiseColour) end
+			if self.canClose then OSDrawing.DrawCharacters(1, 0, "\7", OSWindow.CloseColour, frameColour) end
+			if self.canMinimise then OSDrawing.DrawCharacters(2, 0, "\7", OSWindow.MinimiseColour, frameColour) end
+			if self.canMaximise then OSDrawing.DrawCharacters(3, 0, "\7", OSWindow.MaximiseColour, frameColour) end
 
 			--draw the title
 			local titleX = math.max(math.ceil((self.width / 2) - (#self.title / 2)), 0)
@@ -173,6 +170,8 @@
 				else OSDrawing.DrawCharacters(titleX, 0, self.title, OSWindow.FrameTextColourDark, OSWindow.FocusFrameColourDark) end 
 
 		end
+
+--drawingShouldBeOnTop
 
 		--draw the window background
 		if not darkMode then OSDrawing.DrawBlankArea(1, 1, self.width, self.height - 1, OSWindow.BackgroundColour)
@@ -182,9 +181,12 @@
 		OSDrawing.DrawShadow(1, 0, self.width, self.height)
 
 		--draw the controls
+		for _,entity in pairs(self.entities) do
+			if entity.drawingShouldBeOnTop == nil then entity:Draw(darkMode) end
+		end
 
 		for _,entity in pairs(self.entities) do
-			entity:Draw(darkMode)
+			if entity.drawingShouldBeOnTop ~= nil then entity:Draw(darkMode) end
 		end
 
 		if self.canMaximise then

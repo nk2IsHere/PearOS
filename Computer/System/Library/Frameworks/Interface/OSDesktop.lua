@@ -3,7 +3,7 @@
 	__index = OSEntity
 
 	objtype = ""
-	BackgroundColour = OSSettings['desktop_bg']
+	BackgroundColour = colours.grey
 
 	x = 1
 	y = 1

@@ -30,18 +30,16 @@
 		local placesListView = OSListView:new(1, 4, 15, 11, {
 			placesLabel,
 			OSListItem:new(" Applications", function() handleItem("/Applications/", finderWindow) end),
-			OSListItem:new(" ".. string.sub(OSFileSystem.getName(OSFileSystem.HomePath),1, 12), function() handleItem(OSFileSystem.HomePath, finderWindow) end),
+			OSListItem:new(" Home", function() handleItem(OSFileSystem.HomePath, finderWindow) end),
 			OSListItem:new(" Documents", function() handleItem(OSFileSystem.HomePath.."Documents/", finderWindow) end),
 		})
 
 		local splitter = OSVSplitter:new(16, 3, height-2)
 		
 		local toolbar 
-		if not OSDrawing.darkMode then toolbar = OSBox:new(1,1, width, 2, colours.lightGrey)
+		if not OSDrawing.GetMode() then toolbar = OSBox:new(1,1, width, 2, colours.lightGrey)
 			else toolbar = OSBox:new(1,1, width, 2, colours.black) end
 
-
-		
 		local buttonsSplitter = OSVSplitter:new(6, 1, 1)
 		buttonsSplitter.BackgroundColourDark = colours.black
 		

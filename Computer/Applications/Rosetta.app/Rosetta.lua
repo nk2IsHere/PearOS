@@ -19,11 +19,11 @@
 	rosetta = function()
 		local appList = {}
 		local path = "Applications/ComputerCraft/"
-		local appListView = OSListView:new(1, 2, 17, 14, appList)
+		local appListView = OSListView:new(1, 2, 17, 12, appList)
 		update(path, appListView)
 		windows['rosetta'] = OSWindow:new(name, {
 			appListView
-		}, 17,14, environment)
+		}, 17,12, environment)
 		windows['rosetta'].minHeight = 4
 		windows['rosetta'].minWidth = 9 + #name
 	end

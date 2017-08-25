@@ -84,8 +84,8 @@ function include(_sDir)
 	end
 end
 
-OSVersion = 0.3
-OSVersionLong = "Preview 3"
+OSVersion = 0.4
+OSVersionLong = "Preview 4"
 
 OSCurrentWindow = nil --the window in focus
 OSSelectedEntity = nil
@@ -97,24 +97,35 @@ OSSleepTimer = nil
 
 OSFirstRunMode = false
 --default settings
+OSCurrentUser = nil
 OSSettings = {
+	users = {},
+	update_frequency = 1,
+	sleep_delay = 0,
+}
+
+OSSettingsUser = {
+	password = "",
 	dark_mode = false, 
 	desktop_bg = colours.grey,
 	machine_name = "",
-	user_name = "",
-	update_frequency = 1,
 	extension_associations = {},
+	users = {},
 	dock_items = {},
-	sleep_delay = 0
 }	
 
+SetCurrentUser = function(user)
+	OSCurrentUser = user
+end
+
+SetFTMode = function(mode) 
+	OSFirstRunMode = mode
+end
+
 OSReloadSettings = function()
-	OSSaveSettings()
-	desktop.BackgroundColour = OSSettings['desktop_bg']
-	desktop:Draw()
 	OSSettings = OSTableIO.load("Home/Settings.cfg")
-	--load the extension associations
-	--OSExtensionAssociations.list = OSSettings
+	desktop.BackgroundColour = OSSettings['users'][OSCurrentUser]['desktop_bg']
+	desktop:Draw()
 end
 
 OSChangeSetting = function(_key, _value, _reload)
@@ -125,14 +136,10 @@ OSChangeSetting = function(_key, _value, _reload)
 end
 
 OSSaveSettings = function()
-	OSSettings['extension_associations'] = OSExtensionAssociations.list
 	OSTableIO.save(OSSettings,"Home/Settings.cfg")
 end
 
 OSLog = function(message)
-	
-	--message = tostring(message)
-
 	local file = fs.open("log", "a")
 	file.write(message.."\n")
     file.close()
@@ -146,10 +153,18 @@ OSUpdate = function()
 		OSInterfaceServices.hideAllMenus()
 		OSInterfaceServices.shouldHideAllMenus = false
 	end
-	--
-	--sleep(0.1)
 	OSDrawing.Draw()
 	OSUpdateTimer = os.startTimer(OSEvents.updateFrequency) 
+end
+
+OSStartDesktop = function()
+	OSExtensionAssociations.list = OSSettings['users'][OSCurrentUser]['extension_associations']
+	os.setComputerLabel(OSSettings['users'][OSCurrentUser]['machine_name'])
+	initMenuBar()
+	initDock()
+	startFinder()
+	clock:Draw()
+	Login:quit()
 end
 
 function initMenuBar()
@@ -172,7 +187,6 @@ function initMenuBar()
 
 	clock = OSClockButton:new(20,1,"--:--:--")
 
-	desktop = OSDesktop:new()
 	OSInterfaceEntities.add(OSMenuBar:new())
 	OSInterfaceEntities.add(clock)
 	OSInterfaceEntities.add(menu)
@@ -182,7 +196,7 @@ function initDock()
 	local dockItems = {}
 	table.insert(dockItems, OSDockItem:new("System/Applications/Finder.app"))
 	local applicationsPath = "Applications/"
-	for _,name in ipairs(OSSettings['dock_items']) do
+	for _,name in ipairs(OSSettings['users'][OSCurrentUser]['dock_items']) do
 		table.insert(dockItems, OSDockItem:new(applicationsPath..name))
 	end
 	dock = OSDock:new(dockItems)
@@ -195,6 +209,7 @@ function startFinder()
 end
 
 function init()
+	os.setComputerLabel(nil)
 	term.setTextColour(colours.white)
 
 	--add Macintosh command keys because computercraft doesn't have them in the keys api *cough* cloudy & dan200, add them *cough*
@@ -204,21 +219,21 @@ function init()
 
 	if fs.exists("/Home/Settings.cfg") then
 		OSSettings = OSTableIO.load("/Home/Settings.cfg")
-		os.setComputerLabel(OSSettings['machine_name'])
-
 		include("System/Library/Frameworks")
-		OSExtensionAssociations.list = OSSettings['extension_associations']
-
-		initMenuBar()
-		initDock()
-		startFinder()
-		clock:Draw()
+		LoginWindow()
 	else
 		firstRun()
 	end
 
 	OSUpdate()
 	OSEvents.EventHandler()
+end
+
+LoginWindow = function()
+	desktop = OSDesktop:new()
+	OSFirstRunMode = true
+	Login = OSApplication:load("System/Applications/Login.app")
+	OSApplication.run(Login)
 end
 
 function firstRun()

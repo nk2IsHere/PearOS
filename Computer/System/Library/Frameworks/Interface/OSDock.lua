@@ -72,3 +72,15 @@
 			end
 		end
 	end
+
+	context = function(self, x, y) 
+		for _,item in pairs(self.items) do
+			--check if the click overlaps an items
+			if OSEvents.pointOverlapsRect({x = x, y = y}, item)  then
+				OSInterfaceServices.hideAllMenus()
+				item:context(x, y)
+				OSUpdate()
+				return
+			end
+		end
+	end

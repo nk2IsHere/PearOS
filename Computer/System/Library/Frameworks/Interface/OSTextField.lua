@@ -7,7 +7,7 @@
 	Selection = {0,0} --start character, end character
 	CursorPosition = 0
 	Blink = false  --whether the blinking character should be shown
-	BlinkCharacter = "_"
+	BlinkCharacter = "|"
 	Offset = 0 --the amount of characters hidden
 	MoveDirection = 0
 	submit = nil
@@ -16,8 +16,8 @@
 	TextColourDark = colours.white
 	SelectedTextColour = colours.lightBlue
 	SelectedTextColourDark = colours.orange
-	BackgroundColour = colours.white
-	BackgroundColourDark = colours.grey
+	BackgroundColour = colours.lightGrey
+	BackgroundColourDark = colours.black
 
 	new = function(self, _x, _y, _width, _text, _submit)
 		local new = {}    -- the new instance
@@ -36,6 +36,10 @@
 	end
 
 	Draw = function(self, darkMode)
+		if OSSelectedEntity ~= self then --update selection
+			self.Blink = false
+		end
+
 		local textColour = self.TextColour
 		local backgroundColour = self.BackgroundColour
 		if darkMode then

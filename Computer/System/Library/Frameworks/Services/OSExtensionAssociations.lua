@@ -10,7 +10,7 @@
 			end
 		end
 
-		if not extensionStr == "" then
+		if extensionStr ~= "" then
 			application.windows['extensionRegister'] = OSInfoWindow:new("Extension register",
 												{application.name.." application tries to register",  "new extensions:"..extensionStr, "Allow it to do this?"},
 												"Yes", function() state = true 
@@ -25,7 +25,7 @@
 			end
 
 			local settings = OSTableIO.load("Home/Settings.cfg")
-			settings['extension_associations'] = OSExtensionAssociations.list
+			settings['users'][OSCurrentUser]['extension_associations'] = OSExtensionAssociations.list
 			OSTableIO.save(settings,"Home/Settings.cfg")
 		end
 	end

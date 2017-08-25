@@ -14,14 +14,20 @@
 	dragTimeout = 1
 	commandTimeout = 1
 
-	clickEntity = function(entity, x, y)
+	clickEntity = function(entity, x, y, arg)
 		--make sure the entity has an action
 		if entity.action then
 			--if the entity doen't have the 'enabled' key or enabled is true
 			if entity.enabled == nil or entity.enabled then
 				local entityRelativeX = x - entity.x
 				local entityRelativeY = y - entity.y
-				entity:action(entityRelativeX, entityRelativeY)
+				if arg == 1 then
+					entity:action(entityRelativeX, entityRelativeY, arg)
+				else
+					pcall(function()
+						entity:context(entityRelativeX, entityRelativeY, arg)
+					end)
+				end
 				entity.isSelected = true
 				return true --prevent any other clicks from being registered in the same place
 			end
@@ -38,13 +44,13 @@
 
 
 	--EVENT HADLING
-	function OSHandleClick (x, y)
+	function OSHandleClick (x, y, arg)
 		OSSelectedEntity = nil
 		for _,entity in pairs(OSInterfaceEntities.list) do
 		
 			--check if the click overlaps an entities
 			if OSEvents.pointOverlapsRect({x = x, y = y}, entity)  then
-				if OSEvents.clickEntity(entity, x, y) then
+				if OSEvents.clickEntity(entity, x, y, arg) then
 					OSSelectedEntity = entity
 					return
 				end
@@ -67,7 +73,7 @@
 					local relativeY = y - window.y
 					OSCurrentWindow = window
 					OSInterfaceApplications.switchTo(application)
-					window:action(relativeX, relativeY)
+					window:action(relativeX, relativeY, arg)
 					return
 				end
 			end
@@ -167,7 +173,6 @@
 						end
 					else -- it was in the window content
 						for _,entity in pairs(window.entities) do
-
 							--check if the click overlaps an entities
 							if entity.canScroll == true and OSEvents.pointOverlapsRect({x = relativeX , y = relativeY }, entity)  then
 								local newScroll = entity.scrollY - direction
@@ -250,11 +255,7 @@
 				OSHandleKeystroke(arg)
 			elseif event == "mouse_click"  then
 				OSEvents.resetSleepTimer()
-				if arg == 1 then --left click
-					OSHandleClick(x, y)
-				else --right click
-				--os.reboot()
-				end
+				OSHandleClick(x, y, arg)
 			elseif event == "monitor_touch" then
 				OSEvents.resetSleepTimer()
 				OSHandleClick(x, y)

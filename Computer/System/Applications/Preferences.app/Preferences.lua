@@ -22,10 +22,11 @@
 			OSListItem:new("General", function()switchCategory('General')end),
 			OSListItem:new("Appearance", function()switchCategory('Appearance')end),
 			OSListItem:new("Dock Items", function()switchCategory('Dock Items')end),
+			OSListItem:new("User", function()switchCategory('User')end),
 		})
 				
 		categoryLabel = OSLabel:new(20,2 ,"General")
-		settingsContainer = OSContainer:new(19,5, 27, 11, {})
+		settingsContainer = OSContainer:new(19, 4, 28, 11, {})
 		switchCategory('General')--start category
 		local systemPreferencesWindow = OSWindow:new(name, {
 			settingsListView,
@@ -41,7 +42,10 @@
 	end
 	
 	setDesktopBackground = function(colour)
-		OSChangeSetting('desktop_bg', colour, true)
+		local settings = OSTableIO.load("/Home/Settings.cfg")
+		settings['users'][OSCurrentUser]['desktop_bg'] = colour
+		OSTableIO.save(settings,"/Home/Settings.cfg")
+		OSReloadSettings() 
 	end
 	
 	switchCategory = function(category)
@@ -123,11 +127,11 @@
 			red.SelectedBackgroundColour = colours.red
 			red.SelectedBackgroundColourDark = colours.red
 			
-			local settings = OSTableIO.load("Home/Settings.cfg")
-			local switch = OSSwitch:new(2, 7, "Dark Mode", OSDrawing.darkMode, function() 
-				settings["dark_mode"] = not OSDrawing.darkMode 
-				OSTableIO.save(settings,"Home/Settings.cfg")
-				windows['reboot'] = OSWarningWindow:new("Reboot", {"System needs to be rebooted", "Click on button to reboot"}, "Reboot", function() OSServices.restart() end, environment)
+			local settings = OSTableIO.load("/Home/Settings.cfg")
+			local switch = OSSwitch:new(2, 7, "Dark Mode", OSDrawing.GetMode(), function() 
+				settings['users'][OSCurrentUser]["dark_mode"] = not OSDrawing.GetMode() 
+				OSTableIO.save(settings,"/Home/Settings.cfg")
+				OSDrawing.SetMode(settings['users'][OSCurrentUser]["dark_mode"])
 			end)
 
 			settingsContainer.entities = {
@@ -149,9 +153,13 @@
 				red
 			}
 		elseif category == 'General' then
-			local settings = OSTableIO.load("Home/Settings.cfg")
+			local settings = OSTableIO.load("/Home/Settings.cfg")
 
-			computerField = OSTextField:new(2, 3, 25, os.getComputerLabel(), function() os.setComputerLabel(computerField.text) end)
+			computerField = OSTextField:new(2, 3, 25, os.getComputerLabel(), function() 
+				os.setComputerLabel(computerField.text)
+				settings['users'][OSCurrentUser]['machine_name'] = computerField.text
+				OSTableIO.save(settings,"/Home/Settings.cfg")
+			end)
 			computerField.BackgroundColour = colours.lightGrey
 
 			verboseCheckBox = OSCheckBox:new(2, 7, "Verbose", settings["boot_arg"] == 47, function() 
@@ -159,28 +167,28 @@
 				dontBootPearOSCheckBox.state = false
 				none.state = false
 				settings["boot_arg"] = 47
-				OSTableIO.save(settings,"Home/Settings.cfg")
+				OSTableIO.save(settings,"/Home/Settings.cfg")
 			end)
 			disableMonitorCheckBox = OSCheckBox:new(12, 7, "Off Monitor", settings["boot_arg"] == 50, function()
 				verboseCheckBox.state = false
 				dontBootPearOSCheckBox.state = false
 				none.state = false
 				settings["boot_arg"] = 50
-				OSTableIO.save(settings,"Home/Settings.cfg")
+				OSTableIO.save(settings,"/Home/Settings.cfg")
 			end)
 			dontBootPearOSCheckBox = OSCheckBox:new(2, 9, "Don't boot OS", settings["boot_arg"] == 46, function()
 				verboseCheckBox.state = false
 				disableMonitorCheckBox.state = false
 				none.state = false
 				settings["boot_arg"] = 46
-				OSTableIO.save(settings,"Home/Settings.cfg")
+				OSTableIO.save(settings,"/Home/Settings.cfg")
 			end)
 			none = OSCheckBox:new(18, 9, "None", settings["boot_arg"] == nil, function()
 				verboseCheckBox.state = false
 				disableMonitorCheckBox.state = false
 				dontBootPearOSCheckBox.state = false
 				settings["boot_arg"] = nil
-				OSTableIO.save(settings,"Home/Settings.cfg")
+				OSTableIO.save(settings,"/Home/Settings.cfg")
 			end)
 
 			settingsContainer.entities = {
@@ -192,26 +200,71 @@
 				dontBootPearOSCheckBox,
 				none
 			}
-		elseif category == 'Dock Items' then
-			settingsContainer.entities = {}
-			local startY = 1
-			local applicationsPath = "Applications/"
+		elseif category == 'User' then
+			local name = OSTextField:new(7, 1, 19, OSCurrentUser)
+			name.submit = function()
+				if name.text ~= "" and name.text ~= nil then 
+					local currentUserSettings = table.shallow_copy(OSSettings['users'][OSCurrentUser])
+					local settings = OSTableIO.load("/Home/Settings.cfg")
+					settings['users'][OSCurrentUser] = nil
+					settings['users'][name.text] = currentUserSettings
+					OSFileSystem.move("/Home/"..OSCurrentUser, "/Home/"..name.text)
+					SetCurrentUser(name.text)
+					OSTableIO.save(settings,"/Home/Settings.cfg")
+					windows['warning'] = OSWarningWindow:new("Name reset", {"Name changed!", "Reboot needed"}, "OK", function() os.reboot() end, environment)
+				end
+				OSReloadSettins()
+			end
 
-			local settings = OSTableIO.load("Home/Settings.cfg")
+			local old = OSTextField:new(6, 6, 20, "")
+			local new = OSTextField:new(6, 8, 20, "")
+
+			settingsContainer.entities = {
+				OSLabel:new(2, 1, "Name:"),
+				name,
+				OSLabel:new(2, 4, "Change password"),
+				OSLabel:new(2, 6, "Old:"),
+				old,
+				OSLabel:new(2, 8, "New:"),
+				new,
+				OSButton:new(19, 10, "Change", function() 
+					if new.text ~= "" then
+						if OSSettings['users'][OSCurrentUser]['password'] == OSSha1.sha1(old.text) then
+							local settings = OSTableIO.load("Home/Settings.cfg")
+							settings['users'][OSCurrentUser]['password'] = OSSha1.sha1(new.text)
+							OSTableIO.save(settings,"/Home/Settings.cfg")
+							OSReloadSettings() 
+							windows['warning'] = OSWarningWindow:new("Password reset", {"Password changed!"}, "OK", function() windows['warning'] = nil end, environment)
+						else
+							windows['error'] = OSErrorWindow:new("Password reset", {"Wrong password!"}, "OK", function() windows['error'] = nil end, environment)
+	 					end
+ 					end
+				end)
+			}
+		elseif category == 'Dock Items' then
+			local dockItemList = OSListView:new(2, 1, 27, 11, {})
+
+			settingsContainer.entities = {
+				dockItemList
+			}
+			local startY = 1
+			local applicationsPath = "/Applications/"
+
+			local settings = OSTableIO.load("/Home/Settings.cfg")
 			for _,v in pairs(OSFileSystem.list("Applications")) do
 				if OSFileSystem.hasExtention(v) then
-					local switch = OSSwitch:new(2, startY, v, findInTable(settings.dock_items, v), function()
-						if findInTable(settings.dock_items, v) then
-							OSServices.removeTableItem(settings.dock_items, v)
+					local switch = OSSwitch:new(2, startY, v, findInTable(settings['users'][OSCurrentUser].dock_items, v), function()
+						if findInTable(settings['users'][OSCurrentUser].dock_items, v) then
+							OSServices.removeTableItem(settings['users'][OSCurrentUser].dock_items, v)
 							OSDock:remove(findDockItem(applicationsPath..v))
 						else
-							table.insert(settings.dock_items, v)
+							table.insert(settings['users'][OSCurrentUser].dock_items, v)
 							OSDock:add(OSDockItem:new(applicationsPath..v))
 						end
-						OSTableIO.save(settings,"Home/Settings.cfg")
+						OSTableIO.save(settings,"/Home/Settings.cfg")
 					end)
 
-					table.insert(settingsContainer.entities, switch)
+					table.insert(dockItemList.items, switch)
 					startY = startY + 2
 				end
 			end

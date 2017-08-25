@@ -3,11 +3,12 @@
 	menus = {}
 	windows = {}
 	version = "1.0"
+	OSCurrentUser = nil
 	
 	firstTime = nil --if the user has used pearos before
 	
-	init = function(self)
-    		self:firstRun()
+	init = function()
+    	firstRun(environment)
 	end
 	
 
@@ -37,16 +38,17 @@
 				OSButton:new(39,15 ,"Next", function() self:changePage(7) end)
 			}
 		elseif page == 7 then  		--clean setup start
-			nameTextBox = OSTextField:new(13,10,21,"")
-			nameTextBox.BackgroundColour = colours.lightGrey
+			nameTextBox = OSTextField:new(20,8,18,"")
+			pwdTextBox = OSTextField:new(20,10,18,"")
 			
 			firstRunWindow.entities = {
 				OSButton:new(3,15 ,"Back", function() self:changePage(1) end),
-				OSLabel:new(3,2 ,"What's your name?"),
+				OSLabel:new(3,2 ,"About yourself"),
 				OSHSplitter:new(1, 3, 47, true),
-				OSLabel:new(3,5 ,"Click on the grey box and enter your name."),
-    			nameTextBox,
-				OSButton:new(39,15 ,"Next", function() if #nameTextBox.text > 0 then setName(nameTextBox.text) self:changePage(8) end end)
+				OSLabel:new(3,5 ,"Click on the grey box and enter your cred's"),
+				OSLabel:new(10, 8, "Login:"), nameTextBox,
+				OSLabel:new(10, 10, "Password:"), pwdTextBox,
+				OSButton:new(39,15 ,"Next", function() if (#nameTextBox.text > 0) and (#pwdTextBox.text > 0) then setName(nameTextBox.text, pwdTextBox.text) OSLog("LEL") self:changePage(8) end end)
 				
 			}
 		elseif page == 8 then  		--clean setup start
@@ -58,51 +60,77 @@
 			local orange = OSButton:new(startX, startY," ", function(self) setDesktopBackground(colours.orange) end)
 			orange.BackgroundColour = colours.orange
 			orange.SelectedBackgroundColour = colours.orange
+			orange.BackgroundColourDark = colours.orange
+			orange.SelectedBackgroundColourDark = colours.orange
 			
 			local magenta = OSButton:new(startX + 4, startY," ", function() setDesktopBackground(colours.magenta) end)
 			magenta.BackgroundColour = colours.magenta
 			magenta.SelectedBackgroundColour = colours.magenta
+			magenta.BackgroundColourDark = colours.magenta
+			magenta.SelectedBackgroundColourDark = colours.magenta
 			
 			local lightBlue = OSButton:new(startX + 8, startY," ", function() setDesktopBackground(colours.lightBlue) end)
 			lightBlue.BackgroundColour = colours.lightBlue
 			lightBlue.SelectedBackgroundColour = colours.lightBlue
+			lightBlue.BackgroundColourDark = colours.lightBlue
+			lightBlue.SelectedBackgroundColourDark = colours.lightBlue
 			
 			local yellow = OSButton:new(startX + 12, startY," ", function() setDesktopBackground(colours.yellow) end)
 			yellow.BackgroundColour = colours.yellow
 			yellow.SelectedBackgroundColour = colours.yellow
+			yellow.BackgroundColourDark = colours.yellow
+			yellow.SelectedBackgroundColourDark = colours.yellow
 			
 			local lime = OSButton:new(startX + 16, startY," ", function() setDesktopBackground(colours.lime) end)
 			lime.BackgroundColour = colours.lime
 			lime.SelectedBackgroundColour = colours.lime
+			lime.BackgroundColourDark = colours.lime
+			lime.SelectedBackgroundColourDark = colours.lime
 			
 			local pink = OSButton:new(startX + 20, startY," ", function() setDesktopBackground(colours.pink) end)
 			pink.BackgroundColour = colours.pink
 			pink.SelectedBackgroundColour = colours.pink
+			pink.BackgroundColourDark = colours.pink
+			pink.SelectedBackgroundColourDark = colours.pink
 			
 			local grey = OSButton:new(startX, startY + 2," ", function() setDesktopBackground(colours.grey) end)
 			grey.BackgroundColour = colours.grey
 			grey.SelectedBackgroundColour = colours.grey
+			grey.BackgroundColourDark = colours.grey
+			grey.SelectedBackgroundColourDark = colours.grey
 			
 			local cyan = OSButton:new(startX + 4, startY + 2," ", function() setDesktopBackground(colours.cyan) end)
 			cyan.BackgroundColour = colours.cyan
 			cyan.SelectedBackgroundColour = colours.cyan
+			cyan.BackgroundColourDark = colours.cyan
+			cyan.SelectedBackgroundColourDark = colours.cyan
 			
 			local purple = OSButton:new(startX + 8, startY + 2," ", function() setDesktopBackground(colours.purple) end)
 			purple.BackgroundColour = colours.purple
 			purple.SelectedBackgroundColour = colours.purple
+			purple.BackgroundColourDark = colours.purple
+			purple.SelectedBackgroundColourDark = colours.purple
 			
 			local blue = OSButton:new(startX + 12, startY + 2," ", function() setDesktopBackground(colours.blue) end)
 			blue.BackgroundColour = colours.blue
 			blue.SelectedBackgroundColour = colours.blue
+			blue.BackgroundColourDark = colours.blue
+			blue.SelectedBackgroundColourDark = colours.blue
 			
 			local brown = OSButton:new(startX + 16, startY + 2," ", function() setDesktopBackground(colours.brown) end)
 			brown.BackgroundColour = colours.brown
 			brown.SelectedBackgroundColour = colours.brown
+			brown.BackgroundColourDark = colours.brown
+			brown.SelectedBackgroundColourDark = colours.brown
 			
 			local red = OSButton:new(startX + 20, startY + 2," ", function() setDesktopBackground(colours.red) end)
 			red.BackgroundColour = colours.red
 			red.SelectedBackgroundColour = colours.red
+			red.BackgroundColourDark = colours.red
+			red.SelectedBackgroundColourDark = colours.red
 			
+			local mode = OSSwitch:new(startX, startY+4, "Dark Mode", false, nil)
+			mode.valueChangedAction = function() setMode(mode.state) end
 			
 			firstRunWindow.entities = {
 				OSButton:new(3,15 ,"Back", function() self:changePage(2) end),
@@ -124,6 +152,7 @@
 				brown,
 				green,
 				red,
+				mode,
 				OSButton:new(39,15 ,"Next", function() self:changePage(10) end)				
 			}
 			
@@ -166,15 +195,25 @@
 	end
 
 	setUpdates = function(updates)
-		OSSettings['updates_enabled'] = updates
+		OSSettings['users'][OSCurrentUser]['updates_enabled'] = updates
 	end
 	
-	setName = function(name)
-		OSSettings['user_name'] = name
-		OSSettings['machine_name'] = name.."'s Computer"
+	setName = function(name, password)
+		OSCurrentUser = name
+		OSSettings['users'] = {} OSSettings['users'][name] = {} 
+		OSSettings['users'][name]['dock_items'] = {} OSSettings['users'][name]['extension_associations'] = {}
+
+		OSSettings['users'][name]['password'] = OSSha1.sha1(password)
+		OSSettings['users'][name]['machine_name'] = name.."'s Computer"
 	end
 	
+	setMode = function(mode)
+		OSDrawing.SetMode(mode)
+		OSSettings['users'][OSCurrentUser]['dark_mode'] = mode
+	end
+
 	saveSettings = function()
-		OSChangeSetting('desktop_bg', desktopBackground, true)
+		fs.makeDir("/Home/"..OSCurrentUser)
+		OSSettings['users'][OSCurrentUser]['desktop_bg'] = desktopBackground
 		OSTableIO.save(OSSettings,"Home/Settings.cfg")
 	end

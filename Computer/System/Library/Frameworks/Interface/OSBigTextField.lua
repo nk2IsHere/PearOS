@@ -84,7 +84,6 @@
 	end
 
 	Draw = function(self, darkMode)
-
 		self.maxScrollY = self.height - #self.lines
 
 		local textColour = self.TextColour
@@ -140,16 +139,15 @@
 		if self.CursorPosition.x > self.x then
 			self.CursorPosition.x = self.CursorPosition.x - 1
 		else
-			if self.height + self.scrollY <= #self.lines then
-				self.scrollY = self.scrollY + 1
-			else
-				if self.CursorPosition.y - self.scrollY > self.y then
-					self.CursorPosition.y = self.CursorPosition.y - 1
-					self.CursorPosition.x = #self.lines[self.CursorPosition.y]+1
-				end
-				if self.CursorPosition.y == self.y then
-					self.CursorPosition.x = #self.lines[self.CursorPosition.y]+1
-				end
+			if (self.scrollY < 0) and (#self.lines > 0) and (self.CursorPosition.y == self.y) then
+					self.scrollY = self.scrollY + 1
+			end
+			if self.CursorPosition.y - self.scrollY > self.y then
+				self.CursorPosition.y = self.CursorPosition.y - 1
+				self.CursorPosition.x = #self.lines[self.CursorPosition.y - self.scrollY]+1
+			end
+			if self.CursorPosition.y - self.scrollY == self.y then
+				self.CursorPosition.x = #self.lines[self.CursorPosition.y - self.scrollY]+1
 			end
 		end
 
@@ -180,10 +178,14 @@
 
 	submit = function(self)
 		local pos = self:calculateCursorPosition()
+		self.CursorPosition.x = 1
+		if self.CursorPosition.y == self.y + self.height - 1 then
+			self.scrollY = self.scrollY - 1
+		else
+			self.CursorPosition.y = self.CursorPosition.y + 1
+		end
 		self.text = self.text:sub(1, pos-1) .. '\n' .. self.text:sub(pos)
 		self:calculateWrapping()
-		self.CursorPosition.x = 1
-		self.CursorPosition.y = self.CursorPosition.y + 1
 		OSUpdate()
 	end
 
@@ -193,7 +195,7 @@
 				self.CursorPosition.y = self.CursorPosition.y - 1
 			end
 		elseif direction == -2 then --down
-			if (self.CursorPosition.y + 1 -self.scrollY <= self.height) and (self.lines[self.CursorPosition.y + 1] ~= nil) then
+			if (self.CursorPosition.y + 1 -self.scrollY <= self.height) and (self.lines[self.CursorPosition.y - self.scrollY + 1] ~= nil) then
 				self.CursorPosition.y = self.CursorPosition.y + 1
 			end
 		elseif direction == -1 then --left
@@ -201,13 +203,13 @@
 				self.CursorPosition.x = self.CursorPosition.x - 1
 			end
 		elseif direction == 1 then --reight
-			if self.CursorPosition.x + 1 <= #self.lines[self.CursorPosition.y]  then
+			if self.CursorPosition.x + 1 <= #self.lines[self.CursorPosition.y - self.scrollY]  then
 				self.CursorPosition.x = self.CursorPosition.x + 1
 			end
 		end
 
-		if self.CursorPosition.x > #self.lines[self.CursorPosition.y] + 1 then
-			self.CursorPosition.x = #self.lines[self.CursorPosition.y] + 1 
+		if self.CursorPosition.x > #self.lines[self.CursorPosition.y - self.scrollY] + 1 then
+			self.CursorPosition.x = #self.lines[self.CursorPosition.y - self.scrollY] + 1 
 		end
 		OSUpdate()
 	end
