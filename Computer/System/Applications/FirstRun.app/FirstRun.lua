@@ -48,7 +48,7 @@
 				OSLabel:new(3,5 ,"Click on the grey box and enter your cred's"),
 				OSLabel:new(10, 8, "Login:"), nameTextBox,
 				OSLabel:new(10, 10, "Password:"), pwdTextBox,
-				OSButton:new(39,15 ,"Next", function() if (#nameTextBox.text > 0) and (#pwdTextBox.text > 0) then setName(nameTextBox.text, pwdTextBox.text) OSLog("LEL") self:changePage(8) end end)
+				OSButton:new(39,15 ,"Next", function() if (#nameTextBox.text > 0) then setName(nameTextBox.text, pwdTextBox.text) self:changePage(8) end end)
 				
 			}
 		elseif page == 8 then  		--clean setup start

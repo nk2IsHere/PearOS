@@ -228,17 +228,15 @@
 				OSLabel:new(2, 8, "New:"),
 				new,
 				OSButton:new(19, 10, "Change", function() 
-					if new.text ~= "" then
-						if OSSettings['users'][OSCurrentUser]['password'] == OSSha1.sha1(old.text) then
-							local settings = OSTableIO.load("Home/Settings.cfg")
-							settings['users'][OSCurrentUser]['password'] = OSSha1.sha1(new.text)
-							OSTableIO.save(settings,"/Home/Settings.cfg")
-							OSReloadSettings() 
-							windows['warning'] = OSWarningWindow:new("Password reset", {"Password changed!"}, "OK", function() windows['warning'] = nil end, environment)
-						else
-							windows['error'] = OSErrorWindow:new("Password reset", {"Wrong password!"}, "OK", function() windows['error'] = nil end, environment)
-	 					end
- 					end
+					if OSSettings['users'][OSCurrentUser]['password'] == OSSha1.sha1(old.text) then
+						local settings = OSTableIO.load("Home/Settings.cfg")
+						settings['users'][OSCurrentUser]['password'] = OSSha1.sha1(new.text)
+						OSTableIO.save(settings,"/Home/Settings.cfg")
+						OSReloadSettings() 
+						windows['warning'] = OSWarningWindow:new("Password reset", {"Password changed!"}, "OK", function() windows['warning'] = nil end, environment)
+					else
+						windows['error'] = OSErrorWindow:new("Password reset", {"Wrong password!"}, "OK", function() windows['error'] = nil end, environment)
+					 end
 				end)
 			}
 		elseif category == 'Dock Items' then

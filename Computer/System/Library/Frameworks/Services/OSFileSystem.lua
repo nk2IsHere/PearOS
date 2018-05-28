@@ -57,6 +57,10 @@
 	merge = function(path)
 		return fs.combine(path)
 	end
+
+	mkDir = function(path)
+		return fs.makeDir(path)
+	end
 		
 	extension = function(path) --get the file extension of a path (e.g. '/System/Applications/Finder.app' to '.app')
 		return string.match(path, "([^%.]+)$")

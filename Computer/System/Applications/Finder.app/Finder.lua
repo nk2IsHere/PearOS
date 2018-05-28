@@ -31,7 +31,7 @@
 			placesLabel,
 			OSListItem:new(" Applications", function() handleItem("/Applications/", finderWindow) end),
 			OSListItem:new(" Home", function() handleItem(OSFileSystem.HomePath, finderWindow) end),
-			OSListItem:new(" Documents", function() handleItem(OSFileSystem.HomePath.."Documents/", finderWindow) end),
+			OSListItem:new(" Documents", function() handleItem(OSFileSystem.HomePath.."/Documents/", finderWindow) end),
 		})
 
 		local splitter = OSVSplitter:new(16, 3, height-2)

@@ -18,9 +18,12 @@
 
 	rosetta = function()
 		local appList = {}
-		local path = "Applications/ComputerCraft/"
+		local appsPath = OSFileSystem.HomePath.."/ComputerCraft/"
+		if not OSFileSystem.exists(appsPath) then
+			OSFileSystem.mkDir(appsPath)
+		end
 		local appListView = OSListView:new(1, 2, 17, 12, appList)
-		update(path, appListView)
+		update(appsPath, appListView)
 		windows['rosetta'] = OSWindow:new(name, {
 			appListView
 		}, 17,12, environment)
@@ -28,11 +31,17 @@
 		windows['rosetta'].minWidth = 9 + #name
 	end
 
-	renderApp = function(path, name)
-		shell.resolve(path..name.."/")
-		shell.setDir(path..name.."/")
+	renderApp = function(appPath, name)
 		OSEvents.computerCraftMode = true
-		local ok, err = os.run(environment, path..name.."/"..name)
+		local vmDataPath = path.."/VM"
+
+		local args = {}
+		args.ops = {
+			biosPath = vmDataPath.."/bios.lua",
+			romPath = vmDataPath.."/rom",
+			rootPath = appPath..name
+		}
+		local ok, err = os.run(args, path.."/virtualos.lua")
 		OSEvents.computerCraftMode = false
 		if not (err == nil) then 
 			windows['error'] = OSErrorWindow:new("Application Error", {"Application did not start", "This can be a code error"}, "Proceed", function() windows['error'] = nil end, environment)

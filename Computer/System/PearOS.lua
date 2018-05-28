@@ -84,8 +84,8 @@ function include(_sDir)
 	end
 end
 
-OSVersion = 0.4
-OSVersionLong = "Preview 4"
+OSVersion = 0.5
+OSVersionLong = "TechPreview 5"
 
 OSCurrentWindow = nil --the window in focus
 OSSelectedEntity = nil

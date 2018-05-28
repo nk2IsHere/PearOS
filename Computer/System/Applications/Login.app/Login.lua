@@ -16,7 +16,7 @@
 		end
 
 		local dropdown = OSDropdownMenu:new(2, 4, 18, 4, "Username", userNames)
-		local password = OSTextField:new(2, 6, 18, "Password")
+		local password = OSTextField:new(2, 6, 18, "")
 
 		loginWindow = OSWindow:new("", {
 			OSLabel:new(2, 2, "Login to account:"),
